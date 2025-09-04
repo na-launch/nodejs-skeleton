@@ -8,4 +8,5 @@ metadata:
     che.eclipse.org/devworkspace-link: https://devspaces.apps.cluster-ffz4s.ffz4s.sandbox3066.opentlc.com/#https://github.com/pkredhat/${{ values.repoName }}
 spec:
   type: service
-  lifecycle: experimental  
+  lifecycle: experimental
+  owner: group:default/pkredhat
