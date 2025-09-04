@@ -13,7 +13,7 @@ jobs:
       - name: Build Image
         uses: redhat-actions/buildah-build@v2
         with:
-          image: ${{ values.repoName }}
+          image: ${{ secrets.IMAGE_REGISTRY }}/na-launch/${{ values.repoName }}
           tags: |
             latest
             ${{ github.sha }}
