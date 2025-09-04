@@ -7,4 +7,5 @@ metadata:
     github.com/project-slug: pkredhat/${{ values.repoName }}
 spec:
   type: service
-  lifecycle: experimental  
+  lifecycle: experimental
+  owner: ${{ values.owner }}
