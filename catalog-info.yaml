@@ -5,6 +5,7 @@ metadata:
   description: ${{ values.description }}
   annotations:
     github.com/project-slug: pkredhat/${{ values.repoName }}
+    backstage.io/techdocs-ref: dir:.
   links:        
       - url: https://devspaces.apps.cluster-ffz4s.ffz4s.sandbox3066.opentlc.com/#https://github.com/${{ values.owner }}/${{ values.repoName }}?policies.create=peruser
         title: OpenShift Dev Spaces - DevFile
