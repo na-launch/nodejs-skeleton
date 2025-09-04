@@ -22,7 +22,7 @@ jobs:
       - name: Push to Quay
         uses: redhat-actions/push-to-registry@v2
         with:
-          image: ${{ values.repoName }}
+          image: ${{ secrets.IMAGE_REGISTRY }}/na-launch/${{ values.repoName }}
           tags: |
             latest
             ${{ github.sha }}
