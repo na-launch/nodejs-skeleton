@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ${{ values.repoName }}
+  namespace: ${{ values.namespace }}
 spec:
   replicas: 1
   selector:
@@ -13,8 +14,8 @@ spec:
         app: ${{ values.repoName }}
     spec:
       containers:
-      - name: ${{ values.repoName }}
-        image: IMAGE_PLACEHOLDER
-        imagePullPolicy: Always
-        ports:
-        - containerPort: ${{ values.port }}
+        - name: ${{ values.repoName }}
+          image: IMAGE_PLACEHOLDER
+          imagePullPolicy: Always
+          ports:
+            - containerPort: ${{ values.port }}
