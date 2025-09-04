@@ -6,12 +6,15 @@ metadata:
   annotations:
     github.com/project-slug: pkredhat/${{ values.repoName }}
   links:    
-    - url: https://devspaces.apps.cluster-ffz4s.ffz4s.sandbox3066.opentlc.com/#https://github.com/${{ values.owner }}/${{ values.repoName }}?devfilePath=.devfile-vscode.yaml
-      title: OpenShift Dev Spaces (VS Code)
-      icon: web
+    # - url: https://devspaces.apps.cluster-ffz4s.ffz4s.sandbox3066.opentlc.com/#https://github.com/${{ values.owner }}/${{ values.repoName }}?devfilePath=.devfile-vscode.yaml
+    #   title: OpenShift Dev Spaces (VS Code)
+    #   icon: web
     - url: https://devspaces.apps.cluster-ffz4s.ffz4s.sandbox3066.opentlc.com/#https://github.com/${{ values.owner }}/${{ values.repoName }}?policies.create=peruser
-      title: OpenShift Dev Spaces (Dev Container)
+      title: OpenShift Dev Spaces (DevFile)
       icon: web  
+    - url: https://github.dev/${{ values.owner }}/${{ values.repoName }}
+      title: Open in GitHub.dev (Dev Container)
+      icon: github
 
 spec:
   type: service
