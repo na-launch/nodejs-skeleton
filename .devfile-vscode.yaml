@@ -1,0 +1,48 @@
+schemaVersion: 2.2.2
+metadata:
+  name: ${{ values.repoName }}-dev
+  version: 1.0.0
+  description: DevSpaces workspace for ${{ values.repoName }}
+attributes:
+  # This makes the "Open in DevSpaces" button point here when you include ?devfilePath=devfile.yaml
+  che-editor: vscode
+components:
+  - name: tools
+    container:
+      image: registry.redhat.io/devspaces/udi-rhel9:3.22
+      endpoints:
+        - exposure: public
+          name: nodejs
+          protocol: https
+          targetPort: ${{ values.port }}
+      memoryLimit: '1Gi'
+      memoryRequest: '512Mi'
+      cpuLimit: '0.5'
+      cpuRequest: '0.25'
+      mountSources: true
+      volumeMounts:
+        - name: npm
+          path: /home/user/.npm
+  - name: npm
+    volume:
+      size: 1G
+projects:
+  - name: ${{ values.repoName }}
+    source:
+      type: git
+      location: https://github.com/${{ values.owner }}/${{ values.repoName }}
+commands:
+  - id: install-deps
+    exec:
+      component: tools
+      workingDir: /projects/${{ values.repoName }}
+      commandLine: "npm install"
+  - id: run-app
+    exec:
+      component: tools
+      workingDir: /projects/${{ values.repoName }}
+      commandLine: "npm start"
+      hotReloadCapable: true
+events:
+  postStart:
+    - install-deps
