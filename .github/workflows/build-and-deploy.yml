@@ -13,19 +13,19 @@ jobs:
       - name: Build Image
         uses: redhat-actions/buildah-build@v2
         with:
-          image: na-launch/${{ '${{ values.repoName }}' }}
+          image: na-launch/${{ values.repoName }}
           tags: |
             latest
-            ${{ '${{ github.sha }}' }}
+            ${{ github.sha }}
           dockerfiles: ./Dockerfile
 
       - name: Push to Quay
         uses: redhat-actions/push-to-registry@v2
         with:
-          image: na-launch/${{ '${{ values.repoName }}' }}
+          image: na-launch/${{ values.repoName }}
           tags: |
             latest
-            ${{ '${{ github.sha }}' }}
+            ${{ github.sha }}
           registry: ${{ '${{ secrets.IMAGE_REGISTRY }}' }}
           username: ${{ '${{ secrets.IMAGE_REGISTRY_USER }}' }}
           password: ${{ '${{ secrets.IMAGE_REGISTRY_PASSWORD }}' }}
@@ -40,24 +40,24 @@ jobs:
         with:
           openshift_server_url: ${{ '${{ secrets.OPENSHIFT_SERVER }}' }}
           openshift_token: ${{ '${{ secrets.OPENSHIFT_TOKEN }}' }}
-          namespace: ${{ '${{ values.namespace }}' }}
+          namespace: ${{ values.namespace }}
           insecure_skip_tls_verify: true
 
       - name: Ensure namespace exists
         run: |
-          if ! oc get namespace ${{ '${{ values.namespace }}' }} >/dev/null 2>&1; then
-            oc create namespace ${{ '${{ values.namespace }}' }}
+          if ! oc get namespace ${{ values.namespace }} >/dev/null 2>&1; then
+            oc create namespace ${{ values.namespace }}
           fi
 
       - name: Apply Kubernetes Manifests
         run: |
-          IMAGE="${{ '${{ secrets.IMAGE_REGISTRY }}' }}/na-launch/${{ '${{ values.repoName }}' }}:${{ '${{ github.sha }}' }}"
+          IMAGE="${{ '${{ secrets.IMAGE_REGISTRY }}' }}/na-launch/${{ values.repoName }}:${{ github.sha }}"
           echo "Using image: $IMAGE"
           sed -i "s|IMAGE_PLACEHOLDER|$IMAGE|g" k8s/deployment.yaml
-          oc apply -f k8s/ -n ${{ '${{ values.namespace }}' }}
-          oc rollout status deployment/${{ '${{ values.repoName }}' }} -n ${{ '${{ values.namespace }}' }}
+          oc apply -f k8s/ -n ${{ values.namespace }}
+          oc rollout status deployment/${{ values.repoName }} -n ${{ values.namespace }}
 
       - name: Output App URL
         run: |
-          ROUTE=$(oc get route ${{ '${{ values.repoName }}' }} -n ${{ '${{ values.namespace }}' }} -o jsonpath='{.spec.host}')
+          ROUTE=$(oc get route ${{ values.repoName }} -n ${{ values.namespace }} -o jsonpath='{.spec.host}')
           echo "🌐 App is live at: https://$ROUTE"
