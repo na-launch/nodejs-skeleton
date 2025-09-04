@@ -4,7 +4,7 @@ metadata:
   name: ${{ values.repoName }}
   description: ${{ values.description }}
   annotations:
-    github.com/project-slug: ${{ values.owner }}/${{ values.repoName }}
+    github.com/project-slug: pkredhat/${{ values.repoName }}
 spec:
   type: service
   lifecycle: experimental  
