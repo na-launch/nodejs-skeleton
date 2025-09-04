@@ -7,5 +7,4 @@ metadata:
     github.com/project-slug: ${{ values.owner }}/${{ values.repoName }}
 spec:
   type: service
-  lifecycle: experimental
-  owner: ${{ values.owner }}
+  lifecycle: experimental  
