@@ -13,22 +13,22 @@ jobs:
       - name: Build Image
         uses: redhat-actions/buildah-build@v2
         with:
-          image: "${{ '{{ secrets.IMAGE_REGISTRY }}' }}/na-launch/${{ values.repoName }}"
+          image: ${{ '${{ secrets.IMAGE_REGISTRY }}' }}/na-launch/${{ values.repoName }}
           tags: |
             latest
-            ${{ github.sha }}
+            ${{ '${{ github.sha }}' }}
           dockerfiles: ./Dockerfile
 
       - name: Push to Quay
         uses: redhat-actions/push-to-registry@v2
         with:
-          image: "${{ '{{ secrets.IMAGE_REGISTRY }}' }}/na-launch/${{ values.repoName }}"
+          image: ${{ '${{ secrets.IMAGE_REGISTRY }}' }}/na-launch/${{ values.repoName }}
           tags: |
             latest
-            ${{ github.sha }}
-          registry: "${{ '{{ secrets.IMAGE_REGISTRY }}' }}"
-          username: "${{ '{{ secrets.IMAGE_REGISTRY_USER }}' }}"
-          password: "${{ '{{ secrets.IMAGE_REGISTRY_PASSWORD }}' }}"
+            ${{ '${{ github.sha }}' }}
+          registry: ${{ '${{ secrets.IMAGE_REGISTRY }}' }}
+          username: ${{ '${{ secrets.IMAGE_REGISTRY_USER }}' }}
+          password: ${{ '${{ secrets.IMAGE_REGISTRY_PASSWORD }}' }}
 
       - name: Install oc CLI
         uses: redhat-actions/openshift-tools-installer@v1
@@ -38,13 +38,13 @@ jobs:
       - name: Login to OpenShift
         uses: redhat-actions/oc-login@v1
         with:
-          openshift_server_url: "${{ '{{ secrets.OPENSHIFT_SERVER }}' }}"
-          openshift_token: "${{ '{{ secrets.OPENSHIFT_TOKEN }}' }}"
+          openshift_server_url: ${{ '${{ secrets.OPENSHIFT_SERVER }}' }}
+          openshift_token: ${{ '${{ secrets.OPENSHIFT_TOKEN }}' }}
           namespace: demo-nodejs
 
       - name: Apply Kubernetes Manifests
         run: |
-          IMAGE="${{ '{{ secrets.IMAGE_REGISTRY }}' }}/na-launch/${{ values.repoName }}:${{ github.sha }}"
+          IMAGE="${{ '${{ secrets.IMAGE_REGISTRY }}' }}/na-launch/${{ values.repoName }}:${{ '${{ github.sha }}' }}"
           echo "Using image: $IMAGE"
           sed -i "s|IMAGE_PLACEHOLDER|$IMAGE|g" k8s/deployment.yaml
           oc apply -f k8s/ -n demo-nodejs
