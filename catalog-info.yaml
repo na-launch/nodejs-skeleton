@@ -5,7 +5,11 @@ metadata:
   description: ${{ values.description }}
   annotations:
     github.com/project-slug: pkredhat/${{ values.repoName }}
-    che.eclipse.org/devworkspace-link: https://devspaces.apps.cluster-ffz4s.ffz4s.sandbox3066.opentlc.com/#https://github.com/pkredhat/${{ values.repoName }}
+  links:    
+    - url: https://devspaces.apps.cluster-ffz4s.ffz4s.sandbox3066.opentlc.com/#https://github.com/${{ values.owner }}/${{ values.repoName }}
+      title: OpenShift Dev Spaces (VS Code)
+      icon: web    
+
 spec:
   type: service
   lifecycle: experimental
