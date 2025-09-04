@@ -14,14 +14,18 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           image: ${{ values.repoName }}
-          tags: latest,${{ github.sha }}
+          tags: |
+            latest
+            ${{ github.sha }}
           dockerfiles: ./Dockerfile
 
       - name: Push to Quay
         uses: redhat-actions/push-to-registry@v2
         with:
           image: ${{ values.repoName }}
-          tags: latest,${{ github.sha }}
+          tags: |
+            latest
+            ${{ github.sha }}
           registry: ${{ secrets.IMAGE_REGISTRY }}
           username: ${{ secrets.IMAGE_REGISTRY_USER }}
           password: ${{ secrets.IMAGE_REGISTRY_PASSWORD }}
@@ -41,6 +45,7 @@ jobs:
       - name: Apply Kubernetes Manifests
         run: |
           IMAGE="${{ secrets.IMAGE_REGISTRY }}/${{ values.repoName }}:${{ github.sha }}"
+          echo "Using image: $IMAGE"
           sed -i "s|IMAGE_PLACEHOLDER|$IMAGE|g" k8s/deployment.yaml
           oc apply -f k8s/ -n demo-nodejs
           oc rollout status deployment/${{ values.repoName }} -n demo-nodejs
