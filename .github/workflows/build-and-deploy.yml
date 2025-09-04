@@ -44,7 +44,7 @@ jobs:
 
       - name: Apply Kubernetes Manifests
         run: |
-          IMAGE="${{ secrets.IMAGE_REGISTRY }}/${{ values.repoName }}:${{ github.sha }}"
+          IMAGE="${{ secrets.IMAGE_REGISTRY }}/na-launch/${{ values.repoName }}:${{ github.sha }}"
           echo "Using image: $IMAGE"
           sed -i "s|IMAGE_PLACEHOLDER|$IMAGE|g" k8s/deployment.yaml
           oc apply -f k8s/ -n demo-nodejs
