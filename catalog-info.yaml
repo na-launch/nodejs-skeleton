@@ -8,7 +8,10 @@ metadata:
   links:    
     - url: https://devspaces.apps.cluster-ffz4s.ffz4s.sandbox3066.opentlc.com/#https://github.com/${{ values.owner }}/${{ values.repoName }}?devfilePath=.devfile-vscode.yaml
       title: OpenShift Dev Spaces (VS Code)
-      icon: web    
+      icon: web
+    - url: https://devspaces.apps.cluster-ffz4s.ffz4s.sandbox3066.opentlc.com/#https://github.com/${{ values.owner }}/${{ values.repoName }}?policies.create=peruser
+      title: OpenShift Dev Spaces (Dev Container)
+      icon: web  
 
 spec:
   type: service
