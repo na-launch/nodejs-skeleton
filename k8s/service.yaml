@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${{ values.repoName }}
+  name: DEPLOY_NAME_PLACEHOLDER
   namespace: ${{ values.namespace }}
 spec:
   selector:
-    app: ${{ values.repoName }}
+    app: DEPLOY_NAME_PLACEHOLDER
   ports:
     - name: http
-      port: ${{ values.port }}
-      targetPort: ${{ values.port }}
+      port: 3000
+      targetPort: 3000
   type: ClusterIP

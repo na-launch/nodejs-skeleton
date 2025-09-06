@@ -1,21 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${{ values.repoName }}
+  name: DEPLOY_NAME_PLACEHOLDER
   namespace: ${{ values.namespace }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ${{ values.repoName }}
+      app: DEPLOY_NAME_PLACEHOLDER
   template:
     metadata:
       labels:
-        app: ${{ values.repoName }}
+        app: DEPLOY_NAME_PLACEHOLDER
+        env: ENV_PLACEHOLDER
     spec:
       containers:
         - name: ${{ values.repoName }}
           image: IMAGE_PLACEHOLDER
           imagePullPolicy: Always
           ports:
-            - containerPort: ${{ values.port }}
+            - containerPort: 3000

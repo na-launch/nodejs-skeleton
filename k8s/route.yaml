@@ -1,14 +1,14 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: ${{ values.repoName }}
+  name: DEPLOY_NAME_PLACEHOLDER
   namespace: ${{ values.namespace }}
 spec:
   to:
     kind: Service
-    name: ${{ values.repoName }}
+    name: DEPLOY_NAME_PLACEHOLDER
   port:
     targetPort: http
   tls:
     termination: edge
-    insecureEdgeTerminationPolicy: Redirect   # force HTTPS
+    insecureEdgeTerminationPolicy: Redirect

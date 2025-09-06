@@ -2,30 +2,45 @@ name: Build and Deploy to OpenShift
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - dev
+      - qa
+      - stage
+      - prod
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set branch env + tags
+        id: envtag
+        run: |
+          case "${GITHUB_REF_NAME}" in
+            main)   echo "env=main" >> $GITHUB_OUTPUT ;;
+            dev)    echo "env=dev" >> $GITHUB_OUTPUT ;;
+            qa)     echo "env=qa" >> $GITHUB_OUTPUT ;;
+            stage)  echo "env=stage" >> $GITHUB_OUTPUT ;;
+            prod)   echo "env=prod" >> $GITHUB_OUTPUT ;;
+            *)      echo "env=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT ;;
+          esac
+          echo "deploy_name=${{ values.repoName }}-${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
 
       - name: Build Image
         uses: redhat-actions/buildah-build@v2
         with:
-          image: na-launch/${{ values.repoName }} 
-          tags: |
-            latest
-            ${{ '${{ github.sha }}' }}
+          image: ${{ secrets.IMAGE_REGISTRY }}/na-launch/${{ values.repoName }}
+          tags: ${{ '${{ steps.envtag.outputs.env }}' }}
           dockerfiles: ./Dockerfile
 
-      - name: Push to Quay
+      - name: Push Image
         uses: redhat-actions/push-to-registry@v2
         with:
           image: na-launch/${{ values.repoName }}
-          tags: |
-            latest
-            ${{ '${{ github.sha }}' }}
+          tags: ${{ '${{ steps.envtag.outputs.env }}' }}
           registry: ${{ '${{ secrets.IMAGE_REGISTRY }}' }}
           username: ${{ '${{ secrets.IMAGE_REGISTRY_USER }}' }}
           password: ${{ '${{ secrets.IMAGE_REGISTRY_PASSWORD }}' }}
@@ -49,15 +64,43 @@ jobs:
             oc create namespace ${{ values.namespace }}
           fi
 
-      - name: Apply Kubernetes Manifests
+      - name: Ensure quay-pull-secret exists
         run: |
-          IMAGE="${{ '${{ secrets.IMAGE_REGISTRY }}' }}/na-launch/${{ values.repoName }}:${{ '${{ github.sha }}' }}"
-          echo "Using image: $IMAGE"
-          sed -i "s|IMAGE_PLACEHOLDER|$IMAGE|g" k8s/deployment.yaml
-          oc apply -f k8s/ -n ${{ values.namespace }}
-          oc rollout status deployment/${{ values.repoName }} -n ${{ values.namespace }}
+          oc create secret docker-registry quay-pull-secret \
+            --docker-server=${{ '${{ secrets.IMAGE_REGISTRY }}' }} \
+            --docker-username=${{ '${{ secrets.IMAGE_REGISTRY_USER }}' }} \
+            --docker-password=${{ '${{ secrets.IMAGE_REGISTRY_PASSWORD }}' }} \
+            --docker-email=unused@example.com \
+            -n ${{ values.namespace }} --dry-run=client -o yaml | oc apply -f -
+
+          oc patch serviceaccount default \
+            -p '{"imagePullSecrets":[{"name":"quay-pull-secret"}]}' \
+            -n ${{ values.namespace }}
+
+      - name: Deploy to OpenShift
+        run: |
+          IMAGE="${{ '${{ secrets.IMAGE_REGISTRY }}' }}/na-launch/${{ values.repoName }}:${{ '${{ steps.envtag.outputs.env }}' }}"
+          ENV="${{ '${{ steps.envtag.outputs.env }}' }}"
+          DEPLOY_NAME="${{ '${{ steps.envtag.outputs.deploy_name }}' }}"
+
+          echo "Deploying $IMAGE into env: $ENV as $DEPLOY_NAME"
+
+          cp -r k8s k8s_tmp
+          sed -i "s|IMAGE_PLACEHOLDER|$IMAGE|g" k8s_tmp/*.yaml
+          sed -i "s|ENV_PLACEHOLDER|$ENV|g" k8s_tmp/*.yaml
+          sed -i "s|DEPLOY_NAME_PLACEHOLDER|$DEPLOY_NAME|g" k8s_tmp/*.yaml
+
+          oc apply -f k8s_tmp/ -n ${{ values.namespace }}
+
+          # Force redeploy by changing annotation
+          oc patch deployment $DEPLOY_NAME \
+            -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"redeploy-hash\":\"${{ '${{ github.sha }}' }}\"}}}}}" \
+            -n ${{ values.namespace }}
+
+          oc rollout status deployment/$DEPLOY_NAME -n ${{ values.namespace }}
 
       - name: Output App URL
         run: |
-          ROUTE=$(oc get route ${{ values.repoName }} -n ${{ values.namespace }} -o jsonpath='{.spec.host}')
+          DEPLOY_NAME="${{ '${{ steps.envtag.outputs.deploy_name }}' }}"
+          ROUTE=$(oc get route $DEPLOY_NAME -n ${{ values.namespace }} -o jsonpath='{.spec.host}')
           echo "🌐 App is live at: https://$ROUTE"
