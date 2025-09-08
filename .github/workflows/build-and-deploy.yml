@@ -85,12 +85,18 @@ jobs:
 
           echo "Deploying $IMAGE into env: $ENV as $DEPLOY_NAME"
 
+          # Parse the YAML files in the k8s TODO FOR me: is this the right way to do this?
           cp -r k8s k8s_tmp
           sed -i "s|IMAGE_PLACEHOLDER|$IMAGE|g" k8s_tmp/*.yaml
           sed -i "s|ENV_PLACEHOLDER|$ENV|g" k8s_tmp/*.yaml
           sed -i "s|DEPLOY_NAME_PLACEHOLDER|$DEPLOY_NAME|g" k8s_tmp/*.yaml
 
           oc apply -f k8s_tmp/ -n ${{ values.namespace }}
+
+
+          # Inject the branch/tag into Deployment as env var
+          oc set env deployment/$DEPLOY_NAME GIT_BRANCH=$ENV -n ${{ values.namespace }}
+
 
           # Force redeploy by changing annotation
           oc patch deployment $DEPLOY_NAME \
